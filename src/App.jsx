@@ -8,7 +8,7 @@ import HomeScreen from './pages/HomeScreen'
 function App() {
 
   return (
-    <HomeScreen/>
+    <Signup />
   )
 }
 
