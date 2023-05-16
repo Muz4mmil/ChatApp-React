@@ -1,6 +1,8 @@
 import React from 'react'
-import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-import { auth } from "../firebase";
+import { auth, storage, db } from "../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"; 
 
 const Signup = () => {
 
@@ -12,7 +14,39 @@ const Signup = () => {
     const file = e.target[3].files[0];
 
     try{
-      const res = await createUserWithEmailAndPassword(auth, email, password);
+      var user;
+      const res = await createUserWithEmailAndPassword(auth, email, password)
+      // .then((userCredentials)=>{
+      //   console.log(userCredentials.user);
+      //   user = userCredentials.user;
+      // });
+      console.log(res);
+      const storageRef = ref(storage, displayName);
+
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on('state_changed',    
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+            console.log(downloadURL);
+            await updateProfile(res.user,{
+              displayName,
+              photoURL: downloadURL
+            });
+            await setDoc(doc(db, "users", res.user.uid),{
+              uid:  res.user.uid,
+              displayName,
+              email,
+              photoURL: downloadURL,
+            });
+          });
+        },
+        (error) => {
+          console.log(error);
+        }, 
+      );
+
+      
 
     }catch(err){
       console.log(err);
