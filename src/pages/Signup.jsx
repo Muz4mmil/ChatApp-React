@@ -15,12 +15,8 @@ const Signup = () => {
 
     try{
       var user;
-      const res = await createUserWithEmailAndPassword(auth, email, password)
-      // .then((userCredentials)=>{
-      //   console.log(userCredentials.user);
-      //   user = userCredentials.user;
-      // });
-      console.log(res);
+      const res = await createUserWithEmailAndPassword(auth, email, password);
+
       const storageRef = ref(storage, displayName);
 
       const uploadTask = uploadBytesResumable(storageRef, file);
